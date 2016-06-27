@@ -1,3 +1,6 @@
+def tounicode(s):
+    return ''.join(map(lambda x: '%04x' % ord(x), s))
+
 def parsetoc(s):
     import re
     regexp = re.compile(r'(^\**)(-*)!(.+?) ([0-9]+$)')
