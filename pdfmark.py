@@ -1,5 +1,16 @@
+import codecs
+
 def tounicode(s):
-    return ''.join(map(lambda x: '%04x' % ord(x), s))
+    try:
+        s.encode('ascii')
+    except UnicodeEncodeError:
+        s = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
+        return '<{}>'.format(''.join('{:02X}'.format(b) for b in s))
+    else:
+        for x, y in [('(', '\\('), (')', '\\)'), ('\\', '\\\\'), ('\n', '\\n'),
+                ('\t', '\\t'), ('\b', '\\b')]:
+            s = s.replace(x, y)
+        return '({})'.format(s)
 
 def parsetoc(s):
     import re
