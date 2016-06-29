@@ -26,7 +26,7 @@ def parsetoc(s):
             continue
         level = len(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
-            'title': m.group(3), 'page': int(m.group(4)}))
+            'title': m.group(3), 'page': int(m.group(4))})
 
         if level > lastlevel + 1:
             return j
