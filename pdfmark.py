@@ -28,7 +28,7 @@ def parsetoc(s):
     for j, l in enumerate(s):
         m = regexp.match(l)
         if m is None:
-            continue
+            return j
         level = len(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
             'title': m.group(3), 'page': int(m.group(4))})
