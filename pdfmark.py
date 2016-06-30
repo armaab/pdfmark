@@ -41,3 +41,14 @@ def parsetoc(s):
         lastlevel = level
         i += 1
     return res
+
+def gen_pdfmarks(infos, offset=0):
+    for i in range(len(infos)):
+        c = infos[i]['count']
+        if c:
+            row = '[/Count {}{} '.format(infos[i]['flag'], c)
+        else:
+            row = '['
+        row += '/Title {} /Page {} /OUT pdfmark'.format(
+                tounicode(infos[i]['title']), infos[i]['page']+offset)
+        yield row
