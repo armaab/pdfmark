@@ -1,4 +1,7 @@
 import codecs
+import subprocess
+
+GS = 'gs'
 
 def tounicode(s):
     try:
@@ -52,3 +55,32 @@ def gen_pdfmarks(infos, offset=0):
         row += '/Title {} /Page {} /OUT pdfmark'.format(
                 tounicode(infos[i]['title']), infos[i]['page']+offset)
         yield row
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--in', dest='input', required=True,
+            help='the input PDF to add bookmarks to')
+    parser.add_argument('--out', dest='out', default='output.pdf',
+            help='path to output PDF')
+    parser.add_argument('--toc', dest='toc', required=True,
+            help='path to toc file')
+    parser.add_argument('--offset', dest='offset', type=int, default=0,
+            help='offset of page numbers')
+    parser.add_argument('--gs', dest='gs', default=GS,
+            help='path to the gs (ghostscript) excutable')
+
+    args = parser.parse_args()
+    s = []
+    with open(args.toc, 'r') as f:
+        for line in f:
+            s.append(line)
+    marks = b'\n'.join(row.encode() for row in gen_pdfmarks(parsetoc(s), args.offset))
+
+    gsargs = [args.gs, '-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite']
+    if args.out:
+        gsargs.append('-sOutputFile={}'.format(args.out))
+    gsargs.extend([args.input, '-'])
+
+    subprocess.run(gsargs, input=marks)
