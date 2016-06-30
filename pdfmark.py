@@ -1,7 +1,9 @@
+#/usr/bin/env python3
 import codecs
 import subprocess
 
 GS = 'gs'
+IGNOREPS = 'ignore.ps'
 
 def tounicode(s):
     try:
@@ -58,6 +60,7 @@ def gen_pdfmarks(infos, offset=0):
 
 if __name__ == '__main__':
     import argparse
+    import os
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--in', dest='input', required=True,
@@ -76,11 +79,14 @@ if __name__ == '__main__':
     with open(args.toc, 'r') as f:
         for line in f:
             s.append(line)
-    marks = b'\n'.join(row.encode() for row in gen_pdfmarks(parsetoc(s), args.offset))
+    marks = b'/pdfmark { originalpdfmark } bind def'
+    marks += b'\n'.join(row.encode() for row in gen_pdfmarks(parsetoc(s), args.offset))
 
     gsargs = [args.gs, '-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite']
     if args.out:
         gsargs.append('-sOutputFile={}'.format(args.out))
-    gsargs.extend([args.input, '-'])
+
+    ignoreps = os.path.dirname(os.path.realpath(__file__))+'/'+IGNOREPS
+    gsargs.extend([ignoreps, args.input, '-'])
 
     subprocess.run(gsargs, input=marks)

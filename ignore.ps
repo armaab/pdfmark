@@ -1,0 +1,25 @@
+% store the original pdfmark
+/originalpdfmark { //pdfmark } bind def
+
+% replace pdfmark with a wrapper that ignores OUT
+/pdfmark
+{
+  {  % begin loop
+
+      { counttomark pop }
+    stopped
+      { /pdfmark errordict /unmatchedmark get exec stop }
+    if
+
+    dup type /nametype ne
+      { /pdfmark errordict /typecheck get exec stop }
+    if
+
+    dup /OUT eq
+      { (Skipping OUT pdfmark\n) print cleartomark exit }
+    if
+
+    originalpdfmark exit
+
+  } loop
+} def
