@@ -72,6 +72,8 @@ if __name__ == '__main__':
             help='offset of page numbers')
     parser.add_argument('--gs', dest='gs', default=GS,
             help='path to the gs (ghostscript) excutable')
+    parser.add_argument('--print-pdfmarks', dest='marks', action='store_true',
+            help='print pdfmarks to the standard output')
 
     args = parser.parse_args()
     s = []
@@ -82,8 +84,12 @@ if __name__ == '__main__':
     if isinstance(infos, int):
         print('Error on line {} in {}:\n{}'.format(infos+1, args.toc, s[infos]))
         exit(1)
-    marks = b'/pdfmark { originalpdfmark } bind def'
-    marks += b'\n'.join(row.encode() for row in gen_pdfmarks(infos, args.offset))
+    marks = '\n'.join(row for row in gen_pdfmarks(infos, args.offset))
+    if args.marks:
+        print(marks)
+        exit()
+    marks = '/pdfmark { originalpdfmark } bind def' + marks
+    marks = marks.encode()
 
     gsargs = [args.gs, '-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite']
     if args.out:
