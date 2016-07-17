@@ -19,7 +19,7 @@ def tounicode(s):
 
 def parsetoc(s):
     import re
-    regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+$)\s*')
+    regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
     lastlevel = 0
     res, lines = [], []
     i = 0
