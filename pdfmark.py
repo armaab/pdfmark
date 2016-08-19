@@ -46,6 +46,30 @@ def parsetoc(s):
         i += 1
     return res
 
+def parseinfo(s):
+    import re
+    regexp = re.compile(r'^BookmarkBegin')
+    i = -1
+    for l in s:
+        if i == 0 or i == -1:
+            m = regexp.match(l)
+            if m is None:
+                if i == 0:
+                    break
+                continue
+            else:
+                i = 1
+                continue
+        elif i == 1:
+            title = l.strip().split(': ')[1]
+            i += 1
+        elif i == 2:
+            level = '*' * (int(l.split()[1])-1) + '!'
+            i += 1
+        elif i == 3:
+            yield level + title + ' ' + l.split()[1]
+            i = 0
+
 def gen_pdfmarks(infos, offset=0):
     for i in range(len(infos)):
         c = infos[i]['count']
