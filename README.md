@@ -32,7 +32,9 @@ otherwise it is closed. The excalmatory mark indicste the end of those '\*''s an
 the beginning of bookmark title. There are one or more spaces, i.e. ' ', after the title,
 then follows the page number.
 # Usage
-`$ pdfmark --in <input> --toc <toc-file> --out <output> [--offset <offset>]`
+```
+$ pdfmark --in <input> --toc <toc-file> --out <output> [--offset <offset>]
+```
 Where `<input>`, and `<output>` are input PDF and output PDF, `<toc-file>`
 is the toc file as described above, and the option `<offset>` is optional, it
 means the offset that should be added to the page numbers in toc file.
