@@ -78,9 +78,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     s = []
     with open(args.toc, 'r') as f:
-        for line in f:
-            s.append(line)
-    infos = parsetoc(s)
+        infos = parsetoc(f)
     if isinstance(infos, int):
         print('Error on line {} in {}:\n{}'.format(infos+1, args.toc, s[infos]))
         exit(1)
