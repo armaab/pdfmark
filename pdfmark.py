@@ -27,13 +27,13 @@ def parsetoc(s):
     for j, l in enumerate(s):
         m = regexp.match(l)
         if m is None:
-            return j
+            return (j, l)
         level = len(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
             'title': m.group(3), 'page': int(m.group(4))})
 
         if level > lastlevel + 1:
-            return j
+            return (j, l)
         elif level == lastlevel + 1:
             lines.append((i-1, lastlevel))
         elif level < lastlevel:
@@ -103,8 +103,8 @@ if __name__ == '__main__':
     s = []
     with open(args.toc, 'r') as f:
         infos = parsetoc(f)
-    if isinstance(infos, int):
-        print('Error on line {} in {}:\n{}'.format(infos+1, args.toc, s[infos]))
+    if isinstance(infos, tuple):
+        print('Error on line {} in {}:\n{}'.format(infos[0]+1, args.toc,infos[1]))
         exit(1)
     marks = '\n'.join(row for row in gen_pdfmarks(infos, args.offset))
     if args.marks:
