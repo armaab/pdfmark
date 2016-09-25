@@ -18,6 +18,29 @@ def tounicode(s):
         return '({})'.format(s)
 
 def parsetoc(s):
+    '''Parse toc file.
+
+    Args:
+        s: An iterable of strings each entry represents a line in toc
+        file.
+
+    Returns:
+        A list of dicts each represents a toc item looking like:
+
+        {'count': 1,
+         'flag': '',
+          'title': 'Some title',
+         'page': 10}
+
+         If there is an error in the toc file, then a tuple is
+         returned to indicate the line number and content of the line
+         where the error occurs. For example:
+
+         (2, 'Contents 4')
+
+         indicates that there is a error on line 2 of the toc file and
+         the content of that line is 'Contents 4'.
+    '''
     import re
     regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
     lastlevel = 0
