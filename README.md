@@ -10,9 +10,9 @@ file that is used by gs. With this script, bookmarks can be added to PDF accordi
 * [ghostscript][2]
 
 ## Toc file
-With this small scripts, bookmarks are added to the original file by feeding the PDF and
-a toc file to this program.A toc file looks like the toc of a book, except
-some goodies at the beginning of each line. It's format is following:
+With this small scripts, bookmarks are added to a PDF file by feeding this file and
+a toc file to this program. A toc file looks like the toc of a book, except
+some stuffs at the beginning of each line, as shown in the following:
 ```
 !Contents 1
 !0. Introduction 2
