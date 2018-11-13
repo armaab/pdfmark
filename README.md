@@ -10,9 +10,9 @@ file required by gs. With this script, bookmarks can be added to PDF according t
 * [ghostscript][2]
 
 ## Toc file
-Bookmarks can bee added to a PDF file by feeding the PDF file and
-a toc file to this program. A toc file looks like the toc(table of contents) of a book, except
-some stuffs at the beginning of each line, as shown in the following:
+We can add bookmarks to a PDF file by feeding the PDF file and
+a toc file to this program. A toc file looks like the toc (table of contents) of a book, with
+some other stuffs at the beginning of each line, as shown in the following:
 ```
 !Contents 1
 !0. Introduction 2
@@ -26,12 +26,12 @@ some stuffs at the beginning of each line, as shown in the following:
 *!2.2 Subection 3
 !3. Third section 8
 ```
-As you can see, there are zero or more `*`s, in the beginning of each line, followed
+As you can see, there are zero or more `*`s in the beginning of each line, followed
 by an optional `1` and then a `!`. The number of `*`s
-means the level of current items in the bookmarks, and it starts from 0, i.e. the
-top level entries always start with `!` or `1!`.
+means the level of current items in the bookmarks, starting at 0.
+That is to say that the top level entries always start with `!` or `1!`.
 If there is an '1' before '!', then this entry is open by default,
-otherwise it is closed. The excalmatory mark indicste the end of those '\*''s and
+otherwise it is closed. The excalmatory mark indicates the end of those '\*''s and
 the beginning of bookmark title. There are one or more spaces, i.e. ' ', after the title,
 then follows the page number. In summary, each line of toc
 file should match the regular expression `(^\**)(1?)!(.+?)\s+(-?[0-9]+)\s*$`.
