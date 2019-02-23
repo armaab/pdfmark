@@ -6,7 +6,7 @@ file required by gs. With this script, bookmarks can be added to PDF according t
 (descripted in the following).
 
 ## Requirements
-* Python
+* Python3
 * [ghostscript][2]
 
 ## Toc file
