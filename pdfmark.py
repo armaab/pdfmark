@@ -109,7 +109,7 @@ if __name__ == '__main__':
     import os
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in', dest='input', required=True,
+    parser.add_argument('--in', dest='input', required=True, nargs='+',
             help='the input PDF to add bookmarks to')
     parser.add_argument('--out', dest='out', default='output.pdf',
             help='path to output PDF')
@@ -141,6 +141,8 @@ if __name__ == '__main__':
         gsargs.append('-sOutputFile={}'.format(args.out))
 
     ignoreps = os.path.dirname(os.path.realpath(__file__))+'/'+IGNOREPS
-    gsargs.extend([ignoreps, args.input, '-'])
+    gsargs.append(ignoreps)
+    gsargs.extend(args.input)
+    gsargs.append('-')
 
     subprocess.run(gsargs, input=marks)
