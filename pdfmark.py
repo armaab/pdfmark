@@ -122,10 +122,14 @@ if __name__ == '__main__':
             help='offset of page numbers')
     parser.add_argument('--tsv', action='store_true',
             help='use tab-delimited format for TOC file')
-    parser.add_argument('--gs', dest='gs', default=GS,
+    parser.add_argument('--page', type=int, default=1,
+            help='default page to show when pdf opens')
+    parser.add_argument('--fit', choices=["page", "width"],
+            help='default zoom when pdf opens')
+    parser.add_argument('--gs', default=GS,
             help='path to the gs (ghostscript) excutable')
     parser.add_argument('--print-pdfmarks', dest='marks', action='store_true',
-            help='print pdfmarks to the standard output')
+            help='print pdfmarks to the standard output and exit')
 
     args = parser.parse_args()
     s = []
@@ -134,10 +138,21 @@ if __name__ == '__main__':
     if isinstance(infos, tuple):
         print('Error on line {} in {}:\n{}'.format(infos[0]+1, args.toc,infos[1]))
         exit(1)
-    marks = '\n'.join(row for row in gen_pdfmarks(infos, args.offset))
+
+    page_str = " /Page " + str(args.page)
+    fit_str = " /View [/Fit] " if args.fit == "page" else " /View [/FitH -32768] " if args.fit == "width" else ""
+    marks = (
+        "[/PageMode /UseOutlines"
+        + page_str
+        + fit_str
+        + " /DOCVIEW pdfmark\n"
+        + "\n".join(row for row in gen_pdfmarks(infos, args.offset))
+    )
     if args.marks:
-        print(marks)
+        for mark in marks.split("\n"):
+            print(mark)
         exit()
+
     marks = '/pdfmark { originalpdfmark } bind def' + marks
     marks = marks.encode()
 
