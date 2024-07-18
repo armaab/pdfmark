@@ -17,7 +17,7 @@ def tounicode(s):
             s = s.replace(x, y)
         return '({})'.format(s)
 
-def parsetoc(s):
+def parsetoc(s, legacy_format=True):
     '''Parse toc file.
 
     Args:
@@ -29,7 +29,7 @@ def parsetoc(s):
 
         {'count': 1,
          'flag': '',
-          'title': 'Some title',
+         'title': 'Some title',
          'page': 10}
 
          If there is an error in the toc file, then a tuple is
@@ -42,7 +42,10 @@ def parsetoc(s):
          the content of that line is 'Contents 4'.
     '''
     import re
-    regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
+    if legacy_format:
+        regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
+    else:
+        regexp = re.compile(r'^([0-9]+)\t(.?)\t(.+?)\t(-?[0-9]+)$')
     lastlevel = 0
     res, lines = [], []
     i = 0
@@ -51,7 +54,7 @@ def parsetoc(s):
         m = regexp.match(l)
         if m is None:
             return (j, l)
-        level = len(m.group(1))
+        level = len(m.group(1)) if legacy_format else int(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
             'title': m.group(3), 'page': int(m.group(4))})
 
@@ -117,6 +120,8 @@ if __name__ == '__main__':
             help='path to toc file')
     parser.add_argument('--offset', dest='offset', type=int, default=0,
             help='offset of page numbers')
+    parser.add_argument('--tsv', action='store_true',
+            help='use tab-delimited format for TOC file')
     parser.add_argument('--gs', dest='gs', default=GS,
             help='path to the gs (ghostscript) excutable')
     parser.add_argument('--print-pdfmarks', dest='marks', action='store_true',
@@ -125,7 +130,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     s = []
     with open(args.toc, 'r') as f:
-        infos = parsetoc(f)
+        infos = parsetoc(f, legacy_format=not args.tsv)
     if isinstance(infos, tuple):
         print('Error on line {} in {}:\n{}'.format(infos[0]+1, args.toc,infos[1]))
         exit(1)
