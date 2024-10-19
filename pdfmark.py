@@ -17,6 +17,12 @@ def tounicode(s):
             s = s.replace(x, y)
         return '({})'.format(s)
 
+def unquote(s: str):
+    """ when tab-delimited files are edited in Excel, it adds artificial quotes around titles with commas """
+    if s.startswith('"') and s.endswith('"'):
+        return s[1:-1]
+    return s
+
 def parsetoc(s, legacy_format=True):
     '''Parse toc file.
 
@@ -56,7 +62,7 @@ def parsetoc(s, legacy_format=True):
             return (j, l)
         level = len(m.group(1)) if legacy_format else int(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
-            'title': m.group(3), 'page': int(m.group(4))})
+            'title': unquote(m.group(3)), 'page': int(m.group(4))})
 
         if level > lastlevel + 1:
             return (j, l)
