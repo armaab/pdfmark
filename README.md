@@ -35,14 +35,49 @@ otherwise it is closed. The exclamation mark indicates the end of those asterisk
 the beginning of the bookmark title. There are one or more spaces, i.e. ' ', after the title,
 then follows the page number. In summary, each line of toc
 file should match the regular expression `(^\**)(1?)!(.+?)\s+(-?[0-9]+)\s*$`.
+
+## Alternative Toc file format (Tab-delemited)
+If preferred, a tab-delimited format can be used instead as the toc file (by passing `--tsv` to the command line).
+It has a fixed number of columns and hence easier to edit in Excel or other tabular editors. The columns are:
+```
+Level,IsOpen,Title,Page
+```
+
+The tab-delimited equivalent of the above toc would be (ignore the empty "header" line):
+
+|||||
+|-|-|-|-|
+|0||Contents|1|
+|0||0. Introduction|2|
+|0||1. First section|3|
+|1|*|1.1 Subsection|3|
+|2||1.1.1 Subsubsection|3|
+|2||1.1.2 Another subsubsection|5|
+|1||1.2 Another subsection|7|
+|0||2. Second section|8|
+|1||2.1 Subsection|3|
+|1||2.2 Subsection|3|
+|0||3. Third section|8|
+
+Where:
+- `Level` is a non-empty zero-based integer indicating the depth of the current item in the bookmarks
+- `IsOpen`, if not blank, indicates whether this entry is opened by default, and can be any **single character**
+- The file can't contain headers, comments, and empty lines.
+
+Technically, each line of this toc format should match the regular expression `^([0-9]+)\t(.?)\t(.+?)\t(-?[0-9]+)$`.
+
 # Usage
 ```
-$ pdfmark --in <input> --toc <toc-file> --out <output> [--offset <offset>]
+$ pdfmark --in <input> --toc <toc-file> --out <output> [--offset <offset>] [--tsv] [--page <page>] [--fit page|width] [--print-pdfmarks]
 ```
-Where `<input>`, and `<output>` are input PDF and output PDF, `<toc-file>`
-is the toc file as described above, and the option `<offset>` is optional, it
-stands for the offset that should be added to the page numbers in toc file in order
-to get the real page number in the PDF file.
+Where:
+- `<input>`, and `<output>` are input PDF and output PDF
+- `<toc-file>` is the toc file as described above
+- `<offset>` (optional) stands for the offset that should be added to the page numbers in toc file in order to get the real page number in the PDF file
+- `--tsv` (optional) indicates that the toc file format is tab-delimited
+- `<page>` (optional) sets the default page to display when the PDF opens (defaults to 1)
+- `--fit` (optional) sets the default zoom for when the PDF opens, can be either `page` or `width`
+- `--print-pdfmarks` (optional) is for debugging purposes, prints `pdfmarks` and exists (doesn't create an output PDF)
 
 [1]: http://blog.tremily.us/posts/PDF_bookmarks_with_Ghostscript/
 [2]: http://ghostscript.com/

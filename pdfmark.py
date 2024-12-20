@@ -17,7 +17,13 @@ def tounicode(s):
             s = s.replace(x, y)
         return '({})'.format(s)
 
-def parsetoc(s):
+def unquote(s: str):
+    """ when tab-delimited files are edited in Excel, it adds artificial quotes around titles with commas """
+    if s.startswith('"') and s.endswith('"'):
+        return s[1:-1]
+    return s
+
+def parsetoc(s, legacy_format=True):
     '''Parse toc file.
 
     Args:
@@ -29,7 +35,7 @@ def parsetoc(s):
 
         {'count': 1,
          'flag': '',
-          'title': 'Some title',
+         'title': 'Some title',
          'page': 10}
 
          If there is an error in the toc file, then a tuple is
@@ -42,7 +48,10 @@ def parsetoc(s):
          the content of that line is 'Contents 4'.
     '''
     import re
-    regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
+    if legacy_format:
+        regexp = re.compile(r'(^\**)(1*)!(.+?)\s+(-?[0-9]+)\s*$')
+    else:
+        regexp = re.compile(r'^([0-9]+)\t(.?)\t(.+?)\t(-?[0-9]+)$')
     lastlevel = 0
     res, lines = [], []
     i = 0
@@ -51,9 +60,9 @@ def parsetoc(s):
         m = regexp.match(l)
         if m is None:
             return (j, l)
-        level = len(m.group(1))
+        level = len(m.group(1)) if legacy_format else int(m.group(1))
         res.append({'count': 0, 'flag': '' if m.group(2) else '-',
-            'title': m.group(3), 'page': int(m.group(4))})
+            'title': unquote(m.group(3)), 'page': int(m.group(4))})
 
         if level > lastlevel + 1:
             return (j, l)
@@ -117,22 +126,39 @@ if __name__ == '__main__':
             help='path to toc file')
     parser.add_argument('--offset', dest='offset', type=int, default=0,
             help='offset of page numbers')
-    parser.add_argument('--gs', dest='gs', default=GS,
+    parser.add_argument('--tsv', action='store_true',
+            help='use tab-delimited format for TOC file')
+    parser.add_argument('--page', type=int, default=1,
+            help='default page to show when pdf opens')
+    parser.add_argument('--fit', choices=["page", "width"],
+            help='default zoom when pdf opens')
+    parser.add_argument('--gs', default=GS,
             help='path to the gs (ghostscript) excutable')
     parser.add_argument('--print-pdfmarks', dest='marks', action='store_true',
-            help='print pdfmarks to the standard output')
+            help='print pdfmarks to the standard output and exit')
 
     args = parser.parse_args()
     s = []
     with open(args.toc, 'r') as f:
-        infos = parsetoc(f)
+        infos = parsetoc(f, legacy_format=not args.tsv)
     if isinstance(infos, tuple):
         print('Error on line {} in {}:\n{}'.format(infos[0]+1, args.toc,infos[1]))
         exit(1)
-    marks = '\n'.join(row for row in gen_pdfmarks(infos, args.offset))
+
+    page_str = " /Page " + str(args.page)
+    fit_str = " /View [/Fit] " if args.fit == "page" else " /View [/FitH -32768] " if args.fit == "width" else ""
+    marks = (
+        "[/PageMode /UseOutlines"
+        + page_str
+        + fit_str
+        + " /DOCVIEW pdfmark\n"
+        + "\n".join(row for row in gen_pdfmarks(infos, args.offset))
+    )
     if args.marks:
-        print(marks)
+        for mark in marks.split("\n"):
+            print(mark)
         exit()
+
     marks = '/pdfmark { originalpdfmark } bind def' + marks
     marks = marks.encode()
 
